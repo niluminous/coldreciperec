@@ -91,7 +91,7 @@ def main():
     parser.add_argument('--dataset', type=str, required=True, choices=['foodcom', 'allrecipe'])
     parser.add_argument('--base_path', type=str, default="/data/nilu/coldreciperec/data")
     parser.add_argument('--model_name', type=str, default="bert-base-uncased")
-    parser.add_argument('--batch_size', type=int, default=512) # Reduced batch size for safety?
+    parser.add_argument('--batch_size', type=int, default=512) 
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--patience', type=int, default=5)
     parser.add_argument('--learning_rate', type=float, default=2e-5)

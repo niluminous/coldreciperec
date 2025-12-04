@@ -210,7 +210,7 @@ def main():
     
     print("Constructing Evaluation Sets...")
     
-    # 1. Build Ground Truth from TEST PAIRS (Safe Approach)
+    # 1. Build Ground Truth from TEST PAIRS 
     ground_truth = defaultdict(set)
     test_items_in_pairs = set()
     
