@@ -68,7 +68,7 @@ For AllRecipes
 ```bash
 python make_train_data.py --dataset allrecipe
 ```
-# Step 2: Generate Test Data (Ranking)
+## Step 2: Generate Test Data (Ranking)
 Create the inference dataset. This generates a ranking list (User x All Items) formatted into natural language prompts.
 ```bash
 python make_test_data.py --dataset foodcom 
