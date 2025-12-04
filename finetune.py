@@ -38,7 +38,7 @@ class CSVLoggerCallback(TrainerCallback):
             writer = csv.writer(f)
             writer.writerow([
                 'epoch', 'train_loss', 'train_time_sec', 
-                'eval_loss', 'eval_accuracy', 'eval_f1', 'eval_precision', 'eval_recall'
+                'eval_loss', 'eval_f1'
             ])
 
     def on_epoch_begin(self, args, state, control, **kwargs):
@@ -64,18 +64,15 @@ class CSVLoggerCallback(TrainerCallback):
                     train_loss,              
                     f"{self.train_only_duration:.2f}", 
                     metrics.get('eval_loss'),
-                    metrics.get('eval_accuracy'),
-                    metrics.get('eval_f1'),
-                    metrics.get('eval_precision'),
-                    metrics.get('eval_recall')
+                    metrics.get('eval_f1')
+
                 ])
 
 def compute_metrics(pred):
     labels = pred.label_ids
     preds = pred.predictions.argmax(-1)
-    precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='binary')
-    acc = accuracy_score(labels, preds)
-    return {'accuracy': acc, 'f1': f1, 'precision': precision, 'recall': recall}
+    _, _, f1, _ = precision_recall_fscore_support(labels, preds, average='binary')
+    return {'f1': f1}
 
 def load_pickle_to_hf_dataset(file_path):
     print(f"Loading data from: {file_path}")
@@ -160,16 +157,17 @@ def main():
         num_train_epochs=args.epochs,
         weight_decay=0.01,
         eval_strategy="epoch",      
-        save_strategy="epoch",        
+        save_strategy="epoch", 
+        logging_strategy="epoch",
+       
         load_best_model_at_end=True,  
         # label_smoothing_factor=0.1,  
-        metric_for_best_model="f1",  
+        metric_for_best_model="eval_f1",  
         greater_is_better=True,      
         # ------------------------
-        
         save_total_limit=2,           
         logging_dir=logging_dir,
-        logging_steps=50, 
+        # logging_steps=50, 
         report_to="none",
         fp16=torch.cuda.is_available(), 
         dataloader_num_workers=4 

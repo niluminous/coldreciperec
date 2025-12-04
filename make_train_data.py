@@ -56,6 +56,71 @@ def clean_recipe_text(text):
     
     return text if text else "unknown item"
 
+def load_recipe_names_robust(csv_path, id_col, name_col):
+    print(f"Loading names from: {csv_path}")
+    id_to_name = {}
+    
+    try:
+        # Read the entire CSV without restrictions first
+        df = pd.read_csv(csv_path)
+        # print(f"Raw CSV shape: {df.shape}")
+        
+        # Try to find the correct columns if they don't match exactly
+        if id_col not in df.columns:
+            print(f"Column '{id_col}' not found. Available columns: {list(df.columns)}")
+            # Look for likely ID column
+            for col in df.columns:
+                if 'id' in col.lower() or 'recipe' in col.lower():
+                    id_col = col
+                    # print(f"Using '{id_col}' as ID column")
+                    break
+        
+        if name_col not in df.columns:
+            print(f"Column '{name_col}' not found. Available columns: {list(df.columns)}")
+            # Look for likely name column
+            for col in df.columns:
+                if 'name' in col.lower() or 'title' in col.lower() or 'recipe' in col.lower():
+                    name_col = col
+                    # print(f"Using '{name_col}' as name column")
+                    break
+        
+        # print(f"Using columns: '{id_col}' for IDs, '{name_col}' for names")
+        
+        # Clean and process
+        df = df[[id_col, name_col]].dropna()
+        df[name_col] = df[name_col].astype(str).apply(lambda x: re.sub(r'[^a-zA-Z0-9\s]', ' ', x))
+        df[name_col] = df[name_col].apply(lambda x: re.sub(r'\s+', ' ', x).strip())
+        
+        # Create mapping
+        for _, row in df.iterrows():
+            try:
+                # Handle ID conversion
+                raw_id = row[id_col]
+                if pd.isna(raw_id):
+                    continue
+                    
+                # Convert to int if possible
+                try:
+                    r_id = int(float(str(raw_id)))
+                except:
+                    r_id = str(raw_id).strip()
+                
+                r_name = row[name_col]
+                if r_name and r_name.lower() != 'nan':
+                    id_to_name[r_id] = r_name
+            except:
+                continue
+        
+        # print(f"✅ Successfully loaded {len(id_to_name)} names from {len(df)} rows")
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    return id_to_name
+
+
 # Unified Data Creation Function 
 def create_pairs(
         ratings, user_desc, item_desc, item_names,
@@ -126,7 +191,7 @@ def create_pairs(
 def main():
     parser = argparse.ArgumentParser(description="Generate SPC datasets.")
     parser.add_argument('--dataset', type=str, required=True, choices=['foodcom', 'allrecipe'])
-    parser.add_argument('--base_path', type=str, default="/data/nilu/coldreciperec/data")
+    parser.add_argument('--base_path', type=str, default="./data")
     args = parser.parse_args()
 
     # --- 1. Configuration  ---
@@ -135,7 +200,6 @@ def main():
         data_dir = os.path.join(args.base_path, 'foodcom')
         metadata_path = os.path.join(data_dir, "metadata.pkl")
         
-        # Point to the NEW recovered files
         user_desc_path = os.path.join(data_dir, "user_descriptions_RAW_ID.pkl")
         item_desc_path = os.path.join(data_dir, "item_descriptions_train_RAW_ID.pkl")
         val_item_desc_path = os.path.join(data_dir, "item_descriptions_val_RAW_ID.pkl")
@@ -181,26 +245,7 @@ def main():
         val_item_descriptions = pickle.load(f)
 
     # --- 3. Load CSV  ---
-    print(f"Loading and cleaning recipe names from: {recipe_csv_path}")
-    item_id_to_name = {}
-    try:
-        recipes_df = pd.read_csv(
-            recipe_csv_path, 
-            usecols=[item_id_col, item_name_col],
-            dtype={item_id_col: int, item_name_col: str},
-            on_bad_lines='skip',
-            engine='python' 
-        )
-        for index, row in recipes_df.iterrows():
-            try:
-                r_id = int(row[item_id_col])
-                r_name = row[item_name_col]
-                item_id_to_name[r_id] = clean_recipe_text(r_name)
-            except Exception:
-                continue
-        print(f"✅ Loaded names for {len(item_id_to_name)} items.")
-    except Exception as e:
-        print(f"❌ Error loading CSV: {e}")
+    item_id_to_name = load_recipe_names_robust(recipe_csv_path, item_id_col, item_name_col)
 
     # --- 4. Select Templates & Run ---
     active_user_templates = USER_TEMPLATES
@@ -213,7 +258,7 @@ def main():
     train_pos_pairs, train_neg_pairs = create_pairs(
         train_i_ratings, user_descriptions, item_descriptions,
         item_id_to_name, map_i_n2o, map_u_n2o,  
-        active_user_templates, active_item_templates, negatives_per_positive=1, negative_seed=489
+        active_user_templates, active_item_templates, negatives_per_positive=2, negative_seed=42
     )
     train_pairs = train_pos_pairs + train_neg_pairs
     random.shuffle(train_pairs)
@@ -228,8 +273,8 @@ def main():
     random.shuffle(val_pairs)
 
     # --- 5. Save ---
-    train_filename = f"sentence_pair_classification_data{output_suffix}_seed489.pkl"
-    val_filename = f"sentence_pair_classification_val_data{output_suffix}_seed489.pkl"
+    train_filename = f"sentence_pair_classification_data{output_suffix}.pkl"
+    val_filename = f"sentence_pair_classification_val_data{output_suffix}.pkl"
     
     train_path = os.path.join(data_dir, train_filename)
     val_path = os.path.join(data_dir, val_filename)
@@ -240,8 +285,9 @@ def main():
         pickle.dump(val_pairs, f)
 
     print(f"\n✅ Data generation complete!")
-    print(f"Train data saved to: {train_path} ({len(train_pairs)} pairs)")
-    print(f"Val data saved to:   {val_path} ({len(val_pairs)} pairs)")
+
+    print(f"Train data saved to: {train_path}")
+    print(f"\nVal data saved to: {val_path}")
 
 if __name__ == "__main__":
     main()

@@ -171,7 +171,7 @@ def main():
     model_run_name = f"{args.model_name.split('/')[-1]}_{args.dataset}" 
     
     # Matches the training file name: e.g., "best_model_foodcom_seed489f1"
-    model_path = os.path.join(data_dir, "models", model_run_name, f"best_model_{args.dataset}_seed489f1")
+    model_path = os.path.join(data_dir, "models", model_run_name, f"best_model_{args.dataset}")
 
     if not os.path.exists(model_path):
         model_path = os.path.join(data_dir, "models", model_run_name)

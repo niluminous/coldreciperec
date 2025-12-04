@@ -98,7 +98,7 @@ def create_test_pairs_ranking(
 def main():
     parser = argparse.ArgumentParser(description="Generate SCP test datasets.")
     parser.add_argument('--dataset', type=str, required=True, choices=['foodcom', 'allrecipe'])
-    parser.add_argument('--base_path', type=str, default="/data/nilu/coldreciperec/data")
+    parser.add_argument('--base_path', type=str, default="./data")
     args = parser.parse_args()
 
     # --- 1. Configuration  ---
