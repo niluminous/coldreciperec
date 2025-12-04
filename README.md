@@ -43,32 +43,40 @@ coldreciperec/
 ├── finetune.py                 # Fine-tunes the BERT model
 ├── evaluate.py                 # Calculates NDCG & Recall metrics
 └── README.md
+```
 
 ## 💻 Usage Guide
 
-```bash
+
 # Step 1: Generate Training Data
-# Create the training and validation datasets. This script handles negative sampling and template injection.
+Create the training and validation datasets. This script handles negative sampling and template injection:
 
 # For Food.com
+```bash
 python make_train_data.py --dataset foodcom
-
+```
 # For AllRecipes
+```bash
 python make_train_data.py --dataset allrecipe
-
+```
 # Step 2: Generate Test Data (Ranking)
 # Create the inference dataset. This generates a ranking list (User x All Items) formatted into natural language prompts.
+```bash
 python make_test_data.py --dataset foodcom 
-# Output: Saves scp_test_data_{dataset}.pkl.
+```
+Output: Saves scp_test_data_{dataset}.pkl.
 
 # Step 3: Fine-tune the Model
 # Fine-tune the PLM (default: bert-base-uncased) on the sentence pairs.
+```bash
 python finetune.py \
     --dataset foodcom 
-
-# Outputs: Models are saved to ./data/{dataset}/models/.
+```
+Outputs: Models are saved to ./data/{dataset}/models/.
 
 # Step 4: Evaluation
 # Evaluate the model using NDCG@K and Recall@K (Exact ColdGPT metrics).
+```bash
 python evaluate.py \
     --dataset foodcom 
+```
