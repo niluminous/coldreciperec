@@ -11,15 +11,6 @@ In this work, we propose a novel framework that bridges **Large Language Models 
 
 By utilizing **GPT-4o-mini** to distill complex user and recipe attributes into coherent natural language summaries, we enable a BERT-based model to predict compatibility via **Natural Language Inference (NLI)**. Our approach achieves state-of-the-art performance on **SCS-Food.com** and **SCS-AllRecipes.com** benchmarks.
 
-## 💡 The Core Idea
-
-Traditional models fail on new items because they cannot match an unseen "ID" or graph node. However, a new recipe has rich text (ingredients, steps), and a user has a culinary history.
-
-Our framework reformulates recommendation as a semantic inference task through three key steps:
-
-1.  **Summarize:** An **LLM** acts as a "Culinary Expert," converting raw data into concise profiles (e.g., *"User loves spicy Italian pasta"* vs. *"Recipe is a mild chicken soup"*).
-2.  **Templatize:** These summaries are injected into natural language templates to form a hypothesis (Sentence Pair).
-3.  **Infer:** A **PLM** determines if the User Profile logically entails an interest in the Recipe Description via binary classification.
 ---
 
 ## 📂 Project Structure
@@ -48,34 +39,34 @@ coldreciperec/
 ## 💻 Usage Guide
 
 
-# Step 1: Generate Training Data
+## Step 1: Generate Training Data
 Create the training and validation datasets. This script handles negative sampling and template injection:
 
-# For Food.com
+For Food.com
 ```bash
 python make_train_data.py --dataset foodcom
 ```
-# For AllRecipes
+For AllRecipes
 ```bash
 python make_train_data.py --dataset allrecipe
 ```
 # Step 2: Generate Test Data (Ranking)
-# Create the inference dataset. This generates a ranking list (User x All Items) formatted into natural language prompts.
+Create the inference dataset. This generates a ranking list (User x All Items) formatted into natural language prompts.
 ```bash
 python make_test_data.py --dataset foodcom 
 ```
 Output: Saves scp_test_data_{dataset}.pkl.
 
-# Step 3: Fine-tune the Model
-# Fine-tune the PLM (default: bert-base-uncased) on the sentence pairs.
+## Step 3: Fine-tune the Model
+Fine-tune the PLM (default: bert-base-uncased) on the sentence pairs.
 ```bash
 python finetune.py \
     --dataset foodcom 
 ```
 Outputs: Models are saved to ./data/{dataset}/models/.
 
-# Step 4: Evaluation
-# Evaluate the model using NDCG@K and Recall@K (Exact ColdGPT metrics).
+## Step 4: Evaluation
+Evaluate the model using NDCG@K and Recall@K (Exact ColdGPT metrics).
 ```bash
 python evaluate.py \
     --dataset foodcom 
