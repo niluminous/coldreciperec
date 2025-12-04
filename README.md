@@ -36,6 +36,24 @@ coldreciperec/
 └── README.md
 ```
 
+## 📥 Data Setup
+
+Before running the scripts, please download the required datasets from the sources below.
+
+### 1. Download Datasets
+
+| Dataset | Source | Description |
+| :--- | :--- | :--- |
+| **Summary Data** (Required) | [**Download via Figshare**](https://figshare.com/s/a25fefc9a8922899f733) | Contains the `foodcom` and `allrecipe` summary folders. |
+| **Food.com Raw Data** | [**Download via Kaggle**](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions) | Original recipe attributes and interaction data. |
+| **AllRecipes Raw Data** | [**Download via Kaggle**](https://www.kaggle.com/datasets/elisaxxygao/foodrecsysv1) | Original recipe attributes and interaction data. |
+
+### 2. File Placement
+
+After downloading the **Summary Data** from Figshare, extract the contents and move the `foodcom` and `allrecipe` folders into your project directory here:
+
+`coldreciperec/data/`
+
 ## 💻 Usage Guide
 
 
@@ -66,7 +84,7 @@ python finetune.py \
 Outputs: Models are saved to ./data/{dataset}/models/.
 
 ## Step 4: Evaluation
-Evaluate the model using NDCG@K and Recall@K (Exact ColdGPT metrics).
+Evaluate the model using NDCG@K and Recall@K .
 ```bash
 python evaluate.py \
     --dataset foodcom 
