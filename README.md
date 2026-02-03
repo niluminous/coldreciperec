@@ -1,7 +1,8 @@
 # 🥗 Cold-Start Recipe Recommendation via Template-Based Language Inference with LLM-Generated Summaries
 
 
-> **Official Implementation** of the paper submitted to *Expert Systems with Applications (ESWA)*.
+> **Official Implementation** of the paper published in Expert Systems with Applications (ESWA).
+Link: https://doi.org/10.1016/j.eswa.2026.131184
 
 ## 📝 Introduction
 
